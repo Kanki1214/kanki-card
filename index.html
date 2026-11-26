@@ -240,6 +240,28 @@
   .save-btn:active{transform:scale(.99)}
   .save-btn svg{width:20px;height:20px}
   .save-note{margin:8px 0 0;text-align:center;font-size:12px;color:var(--ink-3)}
+
+  /* ---------- Share ---------- */
+  .share-btn{
+    display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+    border:0;cursor:pointer;border-radius:16px;padding:16px;
+    background:linear-gradient(135deg,#eac877,var(--gold) 60%,#a1761f);color:#241a04;
+    font-size:16.5px;font-weight:800;letter-spacing:.06em;box-shadow:var(--shadow);min-height:58px;
+  }
+  .share-btn:active{transform:scale(.99)}
+  .share-btn svg{width:20px;height:20px;flex:0 0 auto}
+  .share-btn:focus-visible{outline:3px solid var(--gold-2);outline-offset:2px}
+
+  /* ---------- Contact QR ---------- */
+  .qr-card{padding:22px 22px 18px;text-align:center}
+  .qr-card p{margin:0;font-size:14px;line-height:1.9;color:var(--ink-2);letter-spacing:.03em}
+  .qr-card p b{color:var(--ink)}
+  .qr-frame{
+    margin:16px auto 4px;width:min(220px,72%);background:#ffffff;border:1px solid var(--line);
+    border-radius:14px;padding:12px;box-shadow:var(--shadow-sm);
+  }
+  .qr-frame img{width:100%;height:auto;display:block}
+  .qr-note{margin:10px 0 0 !important;font-size:12px !important;color:var(--ink-3) !important}
   footer{margin-top:38px;text-align:center}
   .footer-dream{
     font-family:var(--eng);font-style:italic;font-weight:600;font-size:22px;
@@ -432,6 +454,17 @@
     <p class="toast" id="copyToast" role="status">✓ LINE ID「hello-namisan」をコピーしました</p>
   </section>
 
+  <!-- Share -->
+  <section aria-labelledby="share-h">
+    <div class="sec-head"><span class="dia" aria-hidden="true">◆</span><h2 id="share-h">この名刺を渡す</h2><span class="eng">Share</span></div>
+    <button class="share-btn" id="shareBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3.5"/><path d="m8 6.8 4-4 4 4"/><path d="M5 12.5v6A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5v-6"/></svg>
+      この名刺を共有する
+    </button>
+    <p class="save-note">iPhone同士なら、共有メニューの「AirDrop」で相手のスマホにそのまま送れます</p>
+    <p class="toast" id="shareToast" role="status">✓ 名刺のURLをコピーしました。相手に貼って送ってください</p>
+  </section>
+
   <!-- Save contact -->
   <section aria-labelledby="save-h">
     <div class="sec-head"><span class="dia" aria-hidden="true">◆</span><h2 id="save-h">連絡先に保存</h2><span class="eng">Save</span></div>
@@ -441,6 +474,18 @@
     </button>
     <p class="save-note">スマホの連絡先アプリに、名前・リンクをまとめて登録できます</p>
     <p class="toast" id="saveToast" role="status">✓ 連絡先ファイルを作成しました。開いて「追加」してください</p>
+  </section>
+
+  <!-- Contact QR -->
+  <section aria-labelledby="qr-h">
+    <div class="sec-head"><span class="dia" aria-hidden="true">◆</span><h2 id="qr-h">連絡先QRコード</h2><span class="eng">QR Code</span></div>
+    <div class="card qr-card">
+      <p>カメラで読み取ると、<b>連絡先がそのままスマホに入ります</b></p>
+      <div class="qr-frame">
+        <img src="data:image/png;base64,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" alt="神吉弘子の連絡先（vCard）が入ったQRコード" width="600" height="600" />
+      </div>
+      <p class="qr-note">相手の方のスマホのカメラで読み取ってもらうと、ダウンロードなしで連絡先の追加画面が開きます</p>
+    </div>
   </section>
 
   <footer>
@@ -458,6 +503,8 @@
   var copyToast = document.getElementById('copyToast');
   var saveBtn = document.getElementById('saveBtn');
   var saveToast = document.getElementById('saveToast');
+  var shareBtn = document.getElementById('shareBtn');
+  var shareToast = document.getElementById('shareToast');
 
   function showToast(el){
     el.classList.add('show');
@@ -507,6 +554,30 @@
     document.body.removeChild(a);
     setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
     showToast(saveToast);
+  });
+
+  shareBtn.addEventListener('click', function(){
+    var shareData = {
+      title: '神吉弘子 デジタル名刺',
+      text: '神吉弘子（祝福の案内人／Community Producer）のデジタル名刺です。',
+      url: location.href
+    };
+    if (navigator.share) {
+      navigator.share(shareData).catch(function(){});
+      return;
+    }
+    var url = shareData.url;
+    function copied(){ showToast(shareToast); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(copied).catch(function(){ shareFallback(); });
+    } else { shareFallback(); }
+    function shareFallback(){
+      var ta = document.createElement('textarea');
+      ta.value = url; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); copied(); } catch(e){}
+      document.body.removeChild(ta);
+    }
   });
 })();
 </script>
