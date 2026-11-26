@@ -492,8 +492,8 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5v11"/><path d="m7.2 10.2 4.8 4.8 4.8-4.8"/><path d="M4 19.5h16"/></svg>
       連絡先を保存する
     </button>
-    <p class="save-note">スマホの連絡先アプリに、名前・リンクをまとめて登録できます</p>
-    <p class="toast" id="saveToast" role="status">✓ 連絡先ファイルを作成しました。開いて「追加」してください</p>
+    <p class="save-note">開いたメニューやファイルから「連絡先に追加」できます。うまくいかないときは、下の「連絡先QRコード」が確実です</p>
+    <p class="toast" id="saveToast" role="status">✓ 連絡先ファイルを作成しました。開いて「連絡先に追加」してください</p>
   </section>
 
   <!-- Contact QR -->
@@ -526,9 +526,28 @@
   var shareBtn = document.getElementById('shareBtn');
   var shareToast = document.getElementById('shareToast');
 
-  function showToast(el){
+  /* 名刺の正式な公開URL（共有・コピーは常にこちらを使う） */
+  var CARD_URL = 'https://kanki1214.github.io/kanki-card/';
+
+  var toastTimers = {};
+  function showToast(el, msg){
+    if (msg) el.textContent = msg;
     el.classList.add('show');
-    setTimeout(function(){ el.classList.remove('show'); }, 3200);
+    if (toastTimers[el.id]) clearTimeout(toastTimers[el.id]);
+    toastTimers[el.id] = setTimeout(function(){ el.classList.remove('show'); }, 4600);
+  }
+
+  function copyText(text, done){
+    function fallback(){
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch(e){}
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(fallback);
+    } else { fallback(); }
   }
 
   copyBtn.addEventListener('click', function(){
@@ -554,6 +573,7 @@
       'N:神吉;弘子;;;',
       'TITLE:祝福の案内人／Community Producer',
       'NOTE:ドラゴンマイスター／トークセン岡山支部代表／レンタルスペースGOODLUCK オーナー／レイキヒーラー／麻とウェルネスの架け橋／AI活用・未来創造ナビゲーター／社会人卓球クラブナミーズ代表　LINE ID: hello-namisan',
+      'URL;TYPE=デジタル名刺:' + CARD_URL,
       'URL:https://line.me/ti/p/b2FTO0Zm0u',
       'URL:https://lin.ee/ZKnjLsz',
       'URL:https://www.instagram.com/smilekanki__soulworks',
@@ -565,38 +585,56 @@
       'END:VCARD'
     ].join('\r\n');
     var blob = new Blob(['\ufeff' + vcard], { type: 'text/vcard;charset=utf-8' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = '神吉弘子.vcf';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
-    showToast(saveToast);
+
+    function downloadFallback(){
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = '神吉弘子.vcf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+      showToast(saveToast, '✓ 連絡先ファイルを作成しました。ダウンロードしたファイルを開いて「連絡先に追加」してください');
+    }
+
+    /* まず共有メニュー経由で連絡先ファイルを渡す（iPhoneではAirDropや
+       「ファイルに保存」から連絡先に追加できる）。使えない環境では
+       ダウンロードに切り替える。 */
+    var file = null;
+    try { file = new File([blob], '神吉弘子.vcf', { type: 'text/vcard' }); } catch(e){}
+    if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: '神吉弘子 連絡先' })
+        .then(function(){
+          showToast(saveToast, '✓ 共有メニューを開きました。送る・保存する操作を続けてください');
+        })
+        .catch(function(err){
+          if (err && err.name === 'AbortError') return; /* 本人が閉じた場合 */
+          downloadFallback();
+        });
+    } else {
+      downloadFallback();
+    }
   });
 
   shareBtn.addEventListener('click', function(){
     var shareData = {
       title: '神吉弘子 デジタル名刺',
       text: '神吉弘子（祝福の案内人／Community Producer）のデジタル名刺です。',
-      url: location.href
+      url: CARD_URL
     };
-    if (navigator.share) {
-      navigator.share(shareData).catch(function(){});
-      return;
+    function copyFallback(){
+      copyText(CARD_URL, function(){
+        showToast(shareToast, '✓ 名刺のURLをコピーしました。相手に貼って送ってください');
+      });
     }
-    var url = shareData.url;
-    function copied(){ showToast(shareToast); }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(copied).catch(function(){ shareFallback(); });
-    } else { shareFallback(); }
-    function shareFallback(){
-      var ta = document.createElement('textarea');
-      ta.value = url; ta.style.position='fixed'; ta.style.opacity='0';
-      document.body.appendChild(ta); ta.select();
-      try { document.execCommand('copy'); copied(); } catch(e){}
-      document.body.removeChild(ta);
+    if (navigator.share && (!navigator.canShare || navigator.canShare(shareData))) {
+      navigator.share(shareData).catch(function(err){
+        if (err && err.name === 'AbortError') return; /* 本人が閉じた場合 */
+        copyFallback(); /* 共有が使えない環境ではURLコピーに切り替える */
+      });
+    } else {
+      copyFallback();
     }
   });
 })();
