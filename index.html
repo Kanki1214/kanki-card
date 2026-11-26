@@ -250,7 +250,7 @@
   /* ---------- Save / footer ---------- */
   .save-btn{
     display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
-    border:0;cursor:pointer;border-radius:16px;padding:16px;
+    border:0;cursor:pointer;border-radius:16px;padding:16px;text-decoration:none;
     background:linear-gradient(135deg, var(--navy-2), var(--navy) 60%, var(--navy-deep));color:#f4ecd9;
     font-size:16px;font-weight:700;letter-spacing:.06em;box-shadow:var(--shadow);min-height:58px;
   }
@@ -488,12 +488,12 @@
   <!-- Save contact -->
   <section aria-labelledby="save-h">
     <div class="sec-head"><span class="dia" aria-hidden="true">◆</span><h2 id="save-h">連絡先に保存</h2><span class="eng">Save</span></div>
-    <button class="save-btn" id="saveBtn" type="button">
+    <a class="save-btn" href="https://kanki1214.github.io/kanki-card/kanki.vcf">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5v11"/><path d="m7.2 10.2 4.8 4.8 4.8-4.8"/><path d="M4 19.5h16"/></svg>
       連絡先を保存する
-    </button>
-    <p class="save-note">開いたメニューやファイルから「連絡先に追加」できます。うまくいかないときは、下の「連絡先QRコード」が確実です</p>
-    <p class="toast" id="saveToast" role="status">✓ 連絡先ファイルを作成しました。開いて「連絡先に追加」してください</p>
+    </a>
+    <p class="save-note">Safariでこのページを開いているときに使えます。タップすると連絡先の追加画面が開きます</p>
+    <p class="save-note">※ LINEでは連絡先ファイルが開けません。相手に渡すときは、上の「この名刺を共有する」から名刺のリンクを送るのが確実です</p>
   </section>
 
   <!-- Contact QR -->
@@ -521,8 +521,6 @@
 (function(){
   var copyBtn = document.getElementById('copyBtn');
   var copyToast = document.getElementById('copyToast');
-  var saveBtn = document.getElementById('saveBtn');
-  var saveToast = document.getElementById('saveToast');
   var shareBtn = document.getElementById('shareBtn');
   var shareToast = document.getElementById('shareToast');
 
@@ -562,58 +560,6 @@
       document.body.appendChild(ta); ta.select();
       try { document.execCommand('copy'); done(); } catch(e){}
       document.body.removeChild(ta);
-    }
-  });
-
-  saveBtn.addEventListener('click', function(){
-    var vcard = [
-      'BEGIN:VCARD',
-      'VERSION:3.0',
-      'FN:神吉弘子',
-      'N:神吉;弘子;;;',
-      'TITLE:祝福の案内人／Community Producer',
-      'NOTE:ドラゴンマイスター／トークセン岡山支部代表／レンタルスペースGOODLUCK オーナー／レイキヒーラー／麻とウェルネスの架け橋／AI活用・未来創造ナビゲーター／社会人卓球クラブナミーズ代表　LINE ID: hello-namisan',
-      'URL;TYPE=デジタル名刺:' + CARD_URL,
-      'URL:https://line.me/ti/p/b2FTO0Zm0u',
-      'URL:https://lin.ee/ZKnjLsz',
-      'URL:https://www.instagram.com/smilekanki__soulworks',
-      'URL:https://www.space-goodluck.com/',
-      'URL:https://lin.ee/YqDlmrG',
-      'URL:https://lin.ee/6sjwfjrG',
-      'URL:https://hirokokanki.kannaway.com',
-      'URL:https://ai-na.co.jp/lp/?ref=d728668c',
-      'END:VCARD'
-    ].join('\r\n');
-    var blob = new Blob(['\ufeff' + vcard], { type: 'text/vcard;charset=utf-8' });
-
-    function downloadFallback(){
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = url;
-      a.download = '神吉弘子.vcf';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
-      showToast(saveToast, '✓ 連絡先ファイルを作成しました。ダウンロードしたファイルを開いて「連絡先に追加」してください');
-    }
-
-    /* まず共有メニュー経由で連絡先ファイルを渡す（iPhoneではAirDropや
-       「ファイルに保存」から連絡先に追加できる）。使えない環境では
-       ダウンロードに切り替える。 */
-    var file = null;
-    try { file = new File([blob], '神吉弘子.vcf', { type: 'text/vcard' }); } catch(e){}
-    if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      navigator.share({ files: [file], title: '神吉弘子 連絡先' })
-        .then(function(){
-          showToast(saveToast, '✓ 共有メニューを開きました。送る・保存する操作を続けてください');
-        })
-        .catch(function(err){
-          if (err && err.name === 'AbortError') return; /* 本人が閉じた場合 */
-          downloadFallback();
-        });
-    } else {
-      downloadFallback();
     }
   });
 
